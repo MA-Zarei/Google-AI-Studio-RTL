@@ -8,20 +8,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   const selectAllBtn = document.getElementById('selectAll');
   const forceApplyBtn = document.getElementById('forceApply');
   const preserveCodeToggle = document.getElementById('preserveCode');
+  const rtlUserPromptsToggle = document.getElementById('rtlUserPrompts');
+  const rtlUserInputToggle = document.getElementById('rtlUserInput');
 
-  // Load configuration from local storage
-  let data = await chrome.storage.local.get(['enabled', 'selectors', 'preserveCode']);
+  /// Load configuration from local storage
+  let data = await chrome.storage.local.get(['enabled', 'selectors', 'preserveCode', 'rtlUserPrompts', 'rtlUserInput']);
   let enabled = data.enabled !== undefined ? data.enabled : true;
   let preserveCode = data.preserveCode !== undefined ? data.preserveCode : true;
+  let rtlUserPrompts = data.rtlUserPrompts !== undefined ? data.rtlUserPrompts : true;
+  let rtlUserInput = data.rtlUserInput !== undefined ? data.rtlUserInput : false; // Default is false (disabled)
   let selectors = data.selectors || [{ text: DEFAULT_SELECTOR, active: true, isDefault: true }];
 
   // Setup UI components
   toggleExtension.checked = enabled;
   preserveCodeToggle.checked = preserveCode;
+  rtlUserPromptsToggle.checked = rtlUserPrompts;
+  rtlUserInputToggle.checked = rtlUserInput;
   renderSelectors(selectors);
 
   async function saveState() {
-    await chrome.storage.local.set({ enabled, selectors, preserveCode });
+    await chrome.storage.local.set({ enabled, selectors, preserveCode, rtlUserPrompts, rtlUserInput });
   }
 
   function renderSelectors(list) {
@@ -79,6 +85,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveState();
   });
 
+  // Handle RTL user prompts switch
+  rtlUserPromptsToggle.addEventListener('change', () => {
+    rtlUserPrompts = rtlUserPromptsToggle.checked;
+    saveState();
+  });
+
+  // Handle RTL user input switch
+  rtlUserInputToggle.addEventListener('change', () => {
+    rtlUserInput = rtlUserInputToggle.checked;
+    saveState();
+  });
+
   // Handle adding custom selectors
   addSelectorBtn.addEventListener('click', () => {
     const value = selectorInput.value.trim();
@@ -110,23 +128,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (selList, keepCodeLtr) => {
+      func: (selList, keepCodeLtr, applyRtlPrompts, applyRtlInput) => {
         let styleEl = document.getElementById('rtl-ext-style-force');
         if (!styleEl) {
           styleEl = document.createElement('style');
           styleEl.id = 'rtl-ext-style-force';
           document.head.appendChild(styleEl);
         }
-        const cssRules = selList.map(sel => {
+        let cssRules = selList.map(sel => {
           let rule = `${sel} { direction: rtl !important; }`;
           if (keepCodeLtr) {
             rule += `\n${sel} code, ${sel} pre, ${sel} .code-block { direction: ltr !important; text-align: left !important; }`;
           }
           return rule;
         }).join('\n');
+
+        if (applyRtlPrompts) {
+          const promptSelector = '.chat-turn-container.code-block-aligner.render.user.ng-star-inserted p.ng-star-inserted';
+          cssRules += `\n${promptSelector} { direction: rtl !important; }`;
+          if (keepCodeLtr) {
+            cssRules += `\n${promptSelector} code, ${promptSelector} pre { direction: ltr !important; text-align: left !important; }`;
+          }
+        }
+
+        if (applyRtlInput) {
+          const inputSelector = '.prompt-box-container textarea';
+          cssRules += `\n${inputSelector} { direction: rtl !important; }`;
+        }
+
         styleEl.textContent = cssRules;
       },
-      args: [activeSelectors, preserveCode]
+      args: [activeSelectors, preserveCode, rtlUserPrompts, rtlUserInput]
     });
   });
 });

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h3>RTL Director Settings</h3>
+  
+  <div class="toggle-container">
+    <span>Enable Extension</span>
+    <label class="switch">
+      <input type="checkbox" id="toggleExtension" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="input-group">
+    <input type="text" id="selectorInput" placeholder="Add custom CSS selector...">
+    <button id="addSelector">Add</button>
+  </div>
+
+  <div class="controls">
+    <button id="selectAll" class="text-btn">Toggle All</button>
+  </div>
+
+  <div class="selectors-list" id="selectorsList">
+    <!-- List items will be injected dynamically -->
+  </div>
+
+  <button id="forceApply" class="action-btn">Force Apply RTL on Current Tab</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -7,18 +7,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const selectorsList = document.getElementById('selectorsList');
   const selectAllBtn = document.getElementById('selectAll');
   const forceApplyBtn = document.getElementById('forceApply');
+  const preserveCodeToggle = document.getElementById('preserveCode');
 
   // Load configuration from local storage
-  let data = await chrome.storage.local.get(['enabled', 'selectors']);
+  let data = await chrome.storage.local.get(['enabled', 'selectors', 'preserveCode']);
   let enabled = data.enabled !== undefined ? data.enabled : true;
+  let preserveCode = data.preserveCode !== undefined ? data.preserveCode : true;
   let selectors = data.selectors || [{ text: DEFAULT_SELECTOR, active: true, isDefault: true }];
 
   // Setup UI components
   toggleExtension.checked = enabled;
+  preserveCodeToggle.checked = preserveCode;
   renderSelectors(selectors);
 
   async function saveState() {
-    await chrome.storage.local.set({ enabled, selectors });
+    await chrome.storage.local.set({ enabled, selectors, preserveCode });
   }
 
   function renderSelectors(list) {
@@ -70,6 +73,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveState();
   });
 
+  // Handle preserve code blocks switch
+  preserveCodeToggle.addEventListener('change', () => {
+    preserveCode = preserveCodeToggle.checked;
+    saveState();
+  });
+
   // Handle adding custom selectors
   addSelectorBtn.addEventListener('click', () => {
     const value = selectorInput.value.trim();
@@ -101,17 +110,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (selList) => {
+      func: (selList, keepCodeLtr) => {
         let styleEl = document.getElementById('rtl-ext-style-force');
         if (!styleEl) {
           styleEl = document.createElement('style');
           styleEl.id = 'rtl-ext-style-force';
           document.head.appendChild(styleEl);
         }
-        const cssRules = selList.map(sel => `${sel} { direction: rtl !important; }`).join('\n');
+        const cssRules = selList.map(sel => {
+          let rule = `${sel} { direction: rtl !important; }`;
+          if (keepCodeLtr) {
+            rule += `\n${sel} code, ${sel} pre, ${sel} .code-block { direction: ltr !important; text-align: left !important; }`;
+          }
+          return rule;
+        }).join('\n');
         styleEl.textContent = cssRules;
       },
-      args: [activeSelectors]
+      args: [activeSelectors, preserveCode]
     });
   });
 });

@@ -3,7 +3,7 @@
   "name": "Google AI Studio RTL",
   "version": "1.0.0",
   "description": "Applies RTL direction to specific CSS selectors on Google AI Studio and custom websites.",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "scripting", "fontSettings"],
   "host_permissions": [
     "https://aistudio.google.com/*"
   ],
@@ -12,7 +12,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://aistudio.google.com/prompts/*"],
+      "matches": ["https://aistudio.google.com/*"],
       "js": ["content.js"],
       "run_at": "document_end"
     }

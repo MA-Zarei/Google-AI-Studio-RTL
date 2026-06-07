@@ -7,6 +7,7 @@
 <body>
   <h3>RTL Director Settings</h3>
   
+  <!-- Main Switches -->
   <div class="toggle-container">
     <span>Enable Extension</span>
     <label class="switch">
@@ -22,7 +23,7 @@
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="toggle-container" style="margin-top: -6px; margin-bottom: 14px;">
     <span>RTL User Prompts</span>
     <label class="switch">
@@ -30,7 +31,7 @@
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="toggle-container" style="margin-top: -6px; margin-bottom: 14px;">
     <span>RTL Input Field</span>
     <label class="switch">
@@ -39,6 +40,7 @@
     </label>
   </div>
 
+  <!-- Custom Selector Adder -->
   <div class="input-group">
     <input type="text" id="selectorInput" placeholder="Add custom CSS selector...">
     <button id="addSelector">Add</button>
@@ -48,11 +50,68 @@
     <button id="selectAll" class="text-btn">Toggle All</button>
   </div>
 
+  <!-- Custom Selector List -->
   <div class="selectors-list" id="selectorsList">
     <!-- List items will be injected dynamically -->
   </div>
 
-  <button id="forceApply" class="action-btn">Force Apply RTL on Current Tab</button>
+  <!-- Text Font & Size Section -->
+  <div class="font-section">
+    <div class="toggle-container" style="background: none; padding: 0; margin-bottom: 8px;">
+      <span style="font-weight: bold; font-size: 13px;">Customize Text Font</span>
+      <label class="switch">
+        <input type="checkbox" id="fontEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="font-control-group" id="textControls" style="display: none;">
+      <div class="font-select-wrapper">
+        <input type="text" id="textFontInput" class="font-input" list="fontList" placeholder="Click to search/select font...">
+      </div>
+      <span class="helper-text">💡 Search by typing a font name, or use Vazirmatn (default).</span>
+      <div class="font-row">
+        <span>Text Size</span>
+        <div class="size-controls">
+          <button id="decTextSize" class="size-btn">-</button>
+          <span id="textSizeVal">14px</span>
+          <button id="incTextSize" class="size-btn">+</button>
+        </div>
+      </div>
+      <button id="resetTextFont" class="text-btn" style="align-self: flex-start; margin-top: 4px;">Reset Text Settings</button>
+    </div>
+  </div>
+
+  <!-- Code Font & Size Section -->
+  <div class="font-section">
+    <div class="toggle-container" style="background: none; padding: 0; margin-bottom: 8px;">
+      <span style="font-weight: bold; font-size: 13px;">Customize Code Font</span>
+      <label class="switch">
+        <input type="checkbox" id="codeFontEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="font-control-group" id="codeControls" style="display: none;">
+      <div class="font-select-wrapper">
+        <input type="text" id="codeFontInput" class="font-input" list="fontList" placeholder="Click to search/select code font...">
+      </div>
+      <span class="helper-text">💡 Search by typing a monospace/system font name.</span>
+      <div class="font-row">
+        <span>Code Size</span>
+        <div class="size-controls">
+          <button id="decCodeSize" class="size-btn">-</button>
+          <span id="codeSizeVal">13px</span>
+          <button id="incCodeSize" class="size-btn">+</button>
+        </div>
+      </div>
+      <button id="resetCodeFont" class="text-btn" style="align-self: flex-start; margin-top: 4px;">Reset Code Settings</button>
+    </div>
+  </div>
+
+  <!-- Action Button (Force Apply) -->
+  <button id="forceApply" class="action-btn" style="margin-top: 8px;">Force Apply RTL on Current Tab</button>
+
+  <!-- Datalist for system fonts -->
+  <datalist id="fontList"></datalist>
 
   <script src="popup.js"></script>
 </body>
